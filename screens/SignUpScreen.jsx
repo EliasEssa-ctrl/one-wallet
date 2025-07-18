@@ -1,26 +1,13 @@
-// screens/SignUpScreen.jsx
 import React, { useState } from 'react';
-import {
-  View,
-  Text,
-  TextInput,
-  TouchableOpacity,
-  StyleSheet,
-  Alert,
-  Dimensions,
-} from 'react-native';
+import { View, Text, TextInput, TouchableOpacity, StyleSheet, Alert } from 'react-native';
 import { createUserWithEmailAndPassword } from 'firebase/auth';
+import { auth, db } from '../firebaseconfig/config/firebase';
 import { doc, setDoc } from 'firebase/firestore';
-import { auth, db } from '../config/firebase';
-import { useNavigation } from '@react-navigation/native';
 
-const { width } = Dimensions.get('window');
-
-export default function SignUpScreen() {
+export default function SignUpScreen({ navigation }) {
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
   const [customerId, setCustomerId] = useState('');
-  const navigation = useNavigation();
 
   const handleSignUp = async () => {
     if (!email || !password || !customerId) {
@@ -30,98 +17,38 @@ export default function SignUpScreen() {
 
     try {
       const userCredential = await createUserWithEmailAndPassword(auth, email, password);
-      const user = userCredential.user;
-
-      await setDoc(doc(db, 'users', user.uid), {
+      await setDoc(doc(db, 'users', userCredential.user.uid), {
         email,
         customerId,
         createdAt: new Date(),
       });
 
-      Alert.alert('تم بنجاح', 'تم إنشاء الحساب بنجاح');
+      Alert.alert('تم التسجيل بنجاح');
       navigation.navigate('Login');
     } catch (error) {
-      console.error('خطأ:', error);
-      Alert.alert('فشل التسجيل', error.message);
+      Alert.alert('خطأ', error.message);
     }
   };
 
   return (
     <View style={styles.container}>
-      <Text style={styles.title}>إنشاء حساب</Text>
+      <Text style={styles.title}>إنشاء حساب جديد</Text>
 
-      <TextInput
-        placeholder="البريد الإلكتروني"
-        style={styles.input}
-        keyboardType="email-address"
-        value={email}
-        onChangeText={setEmail}
-      />
-
-      <TextInput
-        placeholder="كلمة المرور"
-        style={styles.input}
-        secureTextEntry
-        value={password}
-        onChangeText={setPassword}
-      />
-
-      <TextInput
-        placeholder="رقم العميل (Customer ID)"
-        style={styles.input}
-        value={customerId}
-        onChangeText={setCustomerId}
-      />
+      <TextInput style={styles.input} placeholder="البريد الإلكتروني" value={email} onChangeText={setEmail} />
+      <TextInput style={styles.input} placeholder="كلمة المرور" secureTextEntry value={password} onChangeText={setPassword} />
+      <TextInput style={styles.input} placeholder="رقم العميل" value={customerId} onChangeText={setCustomerId} />
 
       <TouchableOpacity style={styles.button} onPress={handleSignUp}>
-        <Text style={styles.buttonText}>تسجيل حساب</Text>
-      </TouchableOpacity>
-
-      <TouchableOpacity onPress={() => navigation.navigate('Login')}>
-        <Text style={styles.link}>لديك حساب؟ سجل الدخول</Text>
+        <Text style={styles.buttonText}>تسجيل</Text>
       </TouchableOpacity>
     </View>
   );
 }
 
 const styles = StyleSheet.create({
-  container: {
-    flex: 1,
-    justifyContent: 'center',
-    alignItems: 'center',
-    paddingHorizontal: 20,
-    backgroundColor: '#fff',
-  },
-  title: {
-    fontSize: 26,
-    fontWeight: 'bold',
-    marginBottom: 30,
-    color: '#333',
-  },
-  input: {
-    width: width * 0.85,
-    height: 50,
-    borderColor: '#ccc',
-    borderWidth: 1,
-    borderRadius: 10,
-    marginBottom: 15,
-    paddingHorizontal: 15,
-    backgroundColor: '#f9f9f9',
-  },
-  button: {
-    backgroundColor: '#007AFF',
-    paddingVertical: 15,
-    width: width * 0.85,
-    borderRadius: 10,
-    alignItems: 'center',
-    marginTop: 10,
-  },
-  buttonText: {
-    color: '#fff',
-    fontSize: 18,
-  },
-  link: {
-    marginTop: 15,
-    color: '#007AFF',
-  },
+  container: { flex: 1, padding: 20, justifyContent: 'center' },
+  title: { fontSize: 24, marginBottom: 20, textAlign: 'center' },
+  input: { borderWidth: 1, borderColor: '#aaa', marginBottom: 10, padding: 10, borderRadius: 5 },
+  button: { backgroundColor: '#222', padding: 15, borderRadius: 5 },
+  buttonText: { color: '#fff', textAlign: 'center' },
 });
