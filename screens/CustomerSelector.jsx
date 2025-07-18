@@ -14,18 +14,14 @@ export default function CustomerSelector() {
   const navigation = useNavigation();
 
   const handleSelect = (customerId) => {
-    navigation.navigate('HomeScreen', { customerId });
+    navigation.navigate('CustomerAccounts', { customerId });
   };
 
   return (
     <ScrollView contentContainerStyle={styles.container}>
       <Text style={styles.title}>اختر حساب العميل 👇</Text>
       {customers.map((id) => (
-        <TouchableOpacity
-          key={id}
-          style={styles.button}
-          onPress={() => handleSelect(id)}
-        >
+        <TouchableOpacity key={id} style={styles.button} onPress={() => handleSelect(id)}>
           <Text style={styles.buttonText}>{id}</Text>
         </TouchableOpacity>
       ))}
@@ -34,27 +30,8 @@ export default function CustomerSelector() {
 }
 
 const styles = StyleSheet.create({
-  container: {
-    padding: 20,
-    justifyContent: 'center',
-  },
-  title: {
-    fontSize: 22,
-    fontWeight: 'bold',
-    marginBottom: 20,
-    textAlign: 'center',
-    color: '#333',
-  },
-  button: {
-    backgroundColor: '#636AE8',
-    paddingVertical: 15,
-    paddingHorizontal: 20,
-    borderRadius: 12,
-    marginBottom: 12,
-  },
-  buttonText: {
-    color: '#fff',
-    fontSize: 16,
-    textAlign: 'center',
-  },
+  container: { padding: 20, justifyContent: 'center' },
+  title: { fontSize: 22, fontWeight: 'bold', marginBottom: 20, textAlign: 'center', color: '#333' },
+  button: { backgroundColor: '#636AE8', paddingVertical: 15, paddingHorizontal: 20, borderRadius: 12, marginBottom: 12 },
+  buttonText: { color: '#fff', fontSize: 16, textAlign: 'center' },
 });

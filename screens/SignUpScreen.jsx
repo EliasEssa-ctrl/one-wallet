@@ -33,11 +33,9 @@ export default function SignUpScreen({ navigation }) {
   return (
     <View style={styles.container}>
       <Text style={styles.title}>إنشاء حساب جديد</Text>
-
       <TextInput style={styles.input} placeholder="البريد الإلكتروني" value={email} onChangeText={setEmail} />
       <TextInput style={styles.input} placeholder="كلمة المرور" secureTextEntry value={password} onChangeText={setPassword} />
       <TextInput style={styles.input} placeholder="رقم العميل" value={customerId} onChangeText={setCustomerId} />
-
       <TouchableOpacity style={styles.button} onPress={handleSignUp}>
         <Text style={styles.buttonText}>تسجيل</Text>
       </TouchableOpacity>
