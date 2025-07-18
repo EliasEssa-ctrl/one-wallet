@@ -9,21 +9,21 @@ import {
   Alert,
   Dimensions,
 } from 'react-native';
+import { useNavigation } from '@react-navigation/native';
 import { signInWithEmailAndPassword } from 'firebase/auth';
 import { doc, getDoc } from 'firebase/firestore';
-import { auth, db } from '../config/firebase';
-import { useNavigation } from '@react-navigation/native';
+import { auth, db } from '../firebaseconfig/config/firebase';
 
 const { width } = Dimensions.get('window');
 
 export default function LoginScreen() {
+  const navigation = useNavigation();
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
-  const navigation = useNavigation();
 
   const handleLogin = async () => {
     if (!email || !password) {
-      Alert.alert('خطأ', 'يرجى إدخال البريد وكلمة المرور');
+      Alert.alert('خطأ', 'يرجى تعبئة البريد الإلكتروني وكلمة المرور');
       return;
     }
 
@@ -31,19 +31,24 @@ export default function LoginScreen() {
       const userCredential = await signInWithEmailAndPassword(auth, email, password);
       const user = userCredential.user;
 
-      const userDoc = await getDoc(doc(db, 'users', user.uid));
-      if (!userDoc.exists()) {
-        Alert.alert('خطأ', 'لا يوجد بيانات لهذا المستخدم');
-        return;
+      const docRef = doc(db, 'users', user.uid);
+      const docSnap = await getDoc(docRef);
+
+      if (docSnap.exists()) {
+        const userData = docSnap.data();
+        const customerId = userData.customerId;
+
+        if (customerId) {
+          navigation.navigate('Home', { customerId });
+        } else {
+          Alert.alert('خطأ', 'رقم العميل غير موجود في البيانات');
+        }
+      } else {
+        Alert.alert('خطأ', 'الحساب غير موجود في قاعدة البيانات');
       }
-
-      const userData = userDoc.data();
-      const customerId = userData.customerId;
-
-      navigation.navigate('Home', { customerId });
     } catch (error) {
-      console.error('فشل تسجيل الدخول:', error);
-      Alert.alert('فشل تسجيل الدخول', error.message);
+      console.log(error);
+      Alert.alert('خطأ', 'البريد الإلكتروني أو كلمة المرور غير صحيحة');
     }
   };
 
@@ -52,16 +57,15 @@ export default function LoginScreen() {
       <Text style={styles.title}>تسجيل الدخول</Text>
 
       <TextInput
-        placeholder="البريد الإلكتروني"
         style={styles.input}
-        keyboardType="email-address"
+        placeholder="البريد الإلكتروني"
         value={email}
         onChangeText={setEmail}
       />
 
       <TextInput
-        placeholder="كلمة المرور"
         style={styles.input}
+        placeholder="كلمة المرور"
         secureTextEntry
         value={password}
         onChangeText={setPassword}
@@ -72,7 +76,7 @@ export default function LoginScreen() {
       </TouchableOpacity>
 
       <TouchableOpacity onPress={() => navigation.navigate('SignUp')}>
-        <Text style={styles.link}>ليس لديك حساب؟ أنشئ حساب</Text>
+        <Text style={styles.link}>ليس لديك حساب؟ سجل الآن</Text>
       </TouchableOpacity>
     </View>
   );
@@ -81,41 +85,39 @@ export default function LoginScreen() {
 const styles = StyleSheet.create({
   container: {
     flex: 1,
+    backgroundColor: '#1e1e1e',
     justifyContent: 'center',
     alignItems: 'center',
-    paddingHorizontal: 20,
-    backgroundColor: '#fff',
+    padding: 20,
   },
   title: {
-    fontSize: 26,
+    color: '#fff',
+    fontSize: 28,
+    marginBottom: 40,
     fontWeight: 'bold',
-    marginBottom: 30,
-    color: '#333',
   },
   input: {
-    width: width * 0.85,
+    width: width * 0.8,
     height: 50,
-    borderColor: '#ccc',
-    borderWidth: 1,
-    borderRadius: 10,
-    marginBottom: 15,
+    backgroundColor: '#fff',
+    borderRadius: 12,
     paddingHorizontal: 15,
-    backgroundColor: '#f9f9f9',
+    marginVertical: 10,
   },
   button: {
-    backgroundColor: '#007AFF',
+    backgroundColor: '#FFD700',
     paddingVertical: 15,
-    width: width * 0.85,
-    borderRadius: 10,
-    alignItems: 'center',
-    marginTop: 10,
+    paddingHorizontal: 40,
+    borderRadius: 12,
+    marginTop: 20,
   },
   buttonText: {
-    color: '#fff',
+    color: '#1e1e1e',
     fontSize: 18,
+    fontWeight: 'bold',
   },
   link: {
-    marginTop: 15,
-    color: '#007AFF',
+    color: '#aaa',
+    marginTop: 20,
   },
 });
